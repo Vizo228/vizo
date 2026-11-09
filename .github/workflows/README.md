@@ -1,7 +1,11 @@
 # GitHub Actions workflows
 
-Workflow activation is intentionally deferred.
+## CI
 
-The root-level `ci.yml` and `deploy.yml` are preserved as reference files. They currently reference backend paths and commands that have not yet been verified in this repository. Copying them here now would activate workflows that are expected to fail.
+`ci.yml` is now an active validation workflow for the backend foundation. It installs dependencies and runs TypeScript checks, unit tests, a production build, and a Docker image build on pushes to this branch and pull requests to `main`.
 
-Move reviewed workflows into this directory only after the backend implementation exists and the CI commands have been tested. Production deployment must remain disabled until a VPS, domain, TLS, and GitHub Actions secrets have been configured securely.
+The workflow does not deploy anything and does not require production secrets.
+
+## Deployment
+
+The old root-level `deploy.yml` is preserved as a reference file. It is not activated because production infrastructure (VPS, domain, TLS, backup policy, and deployment secrets) has not been configured or verified. Do not copy it into this directory until those prerequisites and the deployment procedure are reviewed.
