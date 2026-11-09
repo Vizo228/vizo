@@ -5,42 +5,45 @@
 - Work on branch `vizo-reorganization`; do not modify `main` directly.
 - Preserve both root-level HTML prototypes and all existing root files.
 - Do not rename or delete a prototype until its replacement has been verified.
-- Do not activate workflows that reference missing backend files.
-- Do not commit credentials, API keys, private keys, or real `.env` files.
+- Never commit credentials, API keys, private keys, or real `.env` files.
+- Keep the pull request in draft until frontend integration and verification are complete.
 
-## Current verified repository facts
+## Verified current work
 
-- Two HTML prototype files exist at the repository root.
-- Root-level `ci.yml` and `deploy.yml` exist, but GitHub Actions only discovers workflow definitions under `.github/workflows/`.
-- The CI definition references a `backend/` project, including package scripts, Docker Compose, and secret-check scripts. Those references must be checked against real files before activation.
-- `server.test.mjs` imports `../server.mjs`; that import target is not present at the repository root in the inspected file list.
-- No verified production deployment is established by the presence of a deploy workflow.
+### R1 — Safe repository scaffolding
 
-## Stages
+- Documentation, backend foundation, migrations, and CI were added without deleting the original HTML prototypes.
+- The original prototypes remain the source material for frontend migration.
 
-### R1 — Safe repository scaffolding (this change)
+### R2 — Seller application API
 
-Add documentation placeholders for frontend, backend, and workflows. Preserve all existing files. Do not enable workflows or claim that the app has been split.
+- Customer accounts submit a seller application with store details, business description, and resume summary or HTTPS link.
+- Application status starts as `pending`.
+- Only an authenticated administrator can read the review queue and approve/reject an application.
+- Approval creates/updates the seller profile and promotes the user role to `seller` in one database statement.
+- Public registration cannot select the seller/admin role.
+- Resume file upload still requires private object storage; no fake file upload is presented.
 
-### R2 — Frontend migration
+### R3 — Measurement-based fit estimator
 
-Compare both HTML prototypes, identify the canonical source, inventory dependencies, and extract modules. Keep byte-identical backups of originals. Verify visual and functional parity before treating the modular frontend as accepted.
+- The API compares body and garment measurements for chest, waist, hips, shoulders, sleeve length, and garment length.
+- It uses separately supplied horizontal/vertical stretch limits.
+- It reports oversized, loose, stretching, or too-small fit and suggests minimum measurements when the material limit is exceeded.
+- This is a deterministic estimator, not a trained AI model or 3D cloth simulation. GLB mesh measurement extraction and visual cloth deformation remain future integration work.
 
-### R3 — Backend import and verification
+## Not yet complete
 
-Import the completed backend source, Prisma schema, migrations, Docker configuration, tests, and environment example. Run dependency installation, schema validation, typecheck, unit tests, integration tests, and Docker health checks. Record actual results.
+1. Integrate frontend registration/login with the server session API.
+2. Replace browser-local seller role creation with a seller application form and pending state.
+3. Build an admin dashboard to review applications.
+4. Securely provision the first admin account outside public registration.
+5. Add private resume upload storage.
+6. Extract reliable body/garment measurements from real GLB models.
+7. Integrate and test a real cloth simulation/rendering pipeline.
+8. Add database-backed integration tests and verify CI, migration, and deployment.
 
-### R4 — CI activation
+## Acceptance rules
 
-Review and adapt CI to the real repository layout. Place verified workflows in `.github/workflows/`. Confirm pull-request checks pass before merge.
-
-### R5 — Deployment
-
-Only after production infrastructure is selected and secured: configure DNS, HTTPS, VPS, backups, monitoring, GitHub Actions secrets, and deployment workflow. Keep deployment disabled until an explicit production readiness review.
-
-## Acceptance for R1
-
-- Original files remain present and unchanged.
-- New documentation clearly distinguishes placeholders from implemented code.
-- No workflow is activated prematurely.
-- All changes are isolated on the reorganization branch for review.
+- Keep original files unchanged until a replacement has passed comparison.
+- No production deployment until infrastructure and security are reviewed.
+- Do not merge to `main` until the frontend is integrated and all required checks pass.
