@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "frontend/**"
       - ".github/workflows/ci.yml"
   push:
     branches: [main, vizo-reorganization]
@@ -38,3 +39,15 @@ jobs:
         run: npm run build
       - name: Build Docker image
         run: docker build -t vizo-api:ci .
+
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check integration JavaScript syntax
+        run: node --check frontend/vizo-api-integration.js
