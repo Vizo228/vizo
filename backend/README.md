@@ -1,16 +1,27 @@
-# VIZO backend — Stage 1 foundation
+# VIZO backend — seller onboarding and fit-estimation stage
 
-This is an executable API and database foundation. It is not yet the complete marketplace backend.
+The backend now includes the initial API foundation plus server-side seller approval and a measurement-based garment-fit estimator.
 
-## Included
+## Implemented endpoints
 
-- Fastify API with `GET /health` and database-aware `GET /ready`.
-- Environment validation with Zod.
-- PostgreSQL connection through `pg`.
-- Versioned SQL migration runner with an advisory lock and migration ledger.
-- Initial relational schema for users, seller applications/profiles, multilingual categories, products, and product assets.
-- Docker Compose for local PostgreSQL + API.
-- Unit tests for health, readiness failure, and unknown routes.
+### Seller onboarding
+
+- `POST /api/seller-applications` — authenticated customer submits a store application, business details, description, and a resume summary or HTTPS resume link. New applications are always `pending`.
+- `GET /api/seller-applications/me` — applicant checks their application history and review status.
+- `GET /api/admin/seller-applications?status=pending&limit=50&offset=0` — admin-only application queue.
+- `POST /api/admin/seller-applications/:id/review` — admin-only approval or rejection. Approval creates/updates the seller profile and promotes the user to `seller` in the same SQL statement. Rejection never grants seller access.
+
+Public registration does not accept a client-selected role. Admin access must be provisioned out-of-band in the database by an authorized operator; there is no public admin-registration route.
+
+Resume files are not uploaded to this API yet. Applicants can provide a resume summary or HTTPS link. Private file uploads require a configured object-storage provider and access controls; the API does not fetch or trust remote resume links.
+
+### Fit estimator
+
+- `POST /api/try-on/fit-analysis` — authenticated dimension comparison for body and garment measurements, with horizontal and vertical material stretch limits.
+
+The estimator reports oversized/loose fit, acceptable stretch, or too-small dimensions and recommends minimum garment measurements when the fabric stretch limit is exceeded.
+
+**Important scope boundary:** this is a deterministic, physics-informed sizing estimator, not a trained AI model or cloth simulation. It does not currently parse GLB geometry, infer measurements from 3D meshes, render cloth deformation, calculate collision/folds/seams/friction, or predict tearing. Body and garment measurements and fabric stretch percentages must be supplied by a trusted upstream measurement pipeline. The existing HTML/Three.js prototype is preserved and is not yet connected to these APIs.
 
 ## Run locally
 
@@ -31,11 +42,7 @@ The API listens on port 3000 by default:
 
 SQL files live in `src/db/migrations` and are applied in filename order. Applied filenames are recorded in `schema_migrations`. Each migration runs in a transaction, and a PostgreSQL advisory lock prevents concurrent migration runners.
 
-The initial schema deliberately stores password hashes only; password hashing and authentication endpoints are not implemented yet. Role values exist as data constraints, but authorization must be enforced server-side before protected routes are added. Admin role assignment must never be exposed as a public registration field.
-
 ## Run with Docker
-
-From this directory:
 
 ```bash
 docker compose up --build
@@ -43,10 +50,14 @@ docker compose up --build
 
 Local-only default database credentials are for development convenience only. Set a strong `POSTGRES_PASSWORD` through the local environment before any shared or hosted deployment. Never commit a real `.env` file or production secret.
 
-## Not implemented yet
+## Remaining work
 
-Authentication, session management, RBAC enforcement, seller approval endpoints, catalog APIs, cart, orders, payments, delivery, complaints, object storage, 3D processing, and frontend integration. Payment providers are not simulated. No production deployment is configured.
+- Connect the existing frontend login/session flow to the API and replace local seller-role registration with the application form.
+- Add private resume-file storage and malware/content validation.
+- Provision the first administrator securely out-of-band and build the admin review UI.
+- Extract and validate measurements from actual person and garment GLB models.
+- Integrate a real cloth simulation/rendering pipeline and calibrate fabric stretch using measured material data.
+- Add database-backed integration tests and run the complete CI workflow.
+- Deploy only after infrastructure and security review.
 
-## Verification
-
-GitHub Actions runs backend typechecking, unit tests, TypeScript build, and Docker image build for relevant changes. A database-backed migration integration test still needs to be added.
+Payment providers are not simulated. No production deployment is configured.
