@@ -25,7 +25,7 @@ services:
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgresql://vizo:${POSTGRES_PASSWORD:-vizo_local_only}@db:5432/vizo
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080,http://127.0.0.1:8080}
     ports:
       - "3000:3000"
     depends_on:
