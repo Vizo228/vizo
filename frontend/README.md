@@ -4,7 +4,7 @@ The original HTML prototypes remain preserved at the repository root. The integr
 
 ## Run the integrated preview
 
-1. Start PostgreSQL and the API from `backend/` (see `backend/README.md`).
+1. From `backend/`, run `docker compose up -d --build`, then apply the database migrations with `docker compose exec api node dist/db/migrate.js`. The API will be available at `http://localhost:3000`.
 2. In a second terminal, from the repository root run:
 
    ```bash
