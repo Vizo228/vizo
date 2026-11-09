@@ -75,8 +75,8 @@
     oldNav();
     var n = document.getElementById("nav");
     if (!n) return;
-    if (apiUser && apiUser.role === "admin") n.insertAdjacentHTML("beforeend", '<button onclick="go(\\'admin\\')">Проверка продавцов</button>');
-    else if (!apiUser || apiUser.role !== "seller") n.insertAdjacentHTML("beforeend", '<button onclick="go(\\'seller-apply\\')">Стать продавцом</button>');
+    if (apiUser && apiUser.role === "admin") n.insertAdjacentHTML("beforeend", '<button onclick="go(\'admin\')">Проверка продавцов</button>');
+    else if (!apiUser || apiUser.role !== "seller") n.insertAdjacentHTML("beforeend", '<button onclick="go(\'seller-apply\')">Стать продавцом</button>');
     n.insertAdjacentHTML("beforeend", '<button type="button" onclick="vizoConfigureApi()">API URL</button>');
   };
   screens.sellerApply = function () {
@@ -105,7 +105,7 @@
     var el=document.getElementById("sellerApplicationStatus"); if(!el)return;
     try { var r=await request("/api/seller-applications/me");
       if(!r.applications.length){el.textContent="Заявок пока нет. Заполните форму ниже.";return;}
-      el.innerHTML="<strong>Ваши заявки</strong><ul style=\\"margin:10px 0 0 18px\\">"+r.applications.map(function(a){return "<li>"+esc(a.store_name)+" — <strong>"+esc(a.status)+"</strong>"+(a.review_note?" · "+esc(a.review_note):"")+"</li>";}).join("")+"</ul>";
+      el.innerHTML="<strong>Ваши заявки</strong><ul style=\"margin:10px 0 0 18px\">"+r.applications.map(function(a){return "<li>"+esc(a.store_name)+" — <strong>"+esc(a.status)+"</strong>"+(a.review_note?" · "+esc(a.review_note):"")+"</li>";}).join("")+"</ul>";
     } catch(e){el.textContent=e.message;}
   }
   screens.admin = function () { return heading("Проверка продавцов","Проверяйте заявки и вручную одобряйте или отклоняйте доступ.") +
@@ -114,7 +114,7 @@
     var root=document.getElementById("adminApplications");if(!root)return;root.textContent="Загружаем…";
     try { var r=await request("/api/admin/seller-applications?status=pending&limit=50&offset=0");
       if(!r.applications.length){root.textContent="Новых заявок нет.";return;}
-      root.innerHTML=r.applications.map(function(a){return '<article class="panel" style="margin:14px 0;padding:18px"><h3>'+esc(a.store_name)+'</h3><p class="notice">'+esc(a.display_name)+' · '+esc(a.email)+' · '+new Date(a.created_at).toLocaleString("ru-RU")+'</p><p style="margin:10px 0">'+esc(a.description)+'</p><p class="notice">Телефон: '+esc(a.contact_phone)+' · БИН: '+esc(a.business_id||"—")+'</p>'+(a.resume_summary?'<p>Резюме: '+esc(a.resume_summary)+'</p>':"")+(a.resume_url?'<p><a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener noreferrer">Открыть резюме</a></p>':"")+(a.portfolio_url?'<p><a href="'+esc(a.portfolio_url)+'" target="_blank" rel="noopener noreferrer">Портфолио</a></p>':"")+'<label class="field-label">Комментарий</label><input class="input" id="review-'+esc(a.id)+'" maxlength="2000" placeholder="Необязательно"><div class="seg" style="margin-top:12px"><button class="btn primary" onclick="reviewSellerApplication(\\''+esc(a.id)+'\\',\\'approved\\')">Одобрить</button><button class="btn" onclick="reviewSellerApplication(\\''+esc(a.id)+'\\',\\'rejected\\')">Отклонить</button></div></article>';}).join("");
+      root.innerHTML=r.applications.map(function(a){return '<article class="panel" style="margin:14px 0;padding:18px"><h3>'+esc(a.store_name)+'</h3><p class="notice">'+esc(a.display_name)+' · '+esc(a.email)+' · '+new Date(a.created_at).toLocaleString("ru-RU")+'</p><p style="margin:10px 0">'+esc(a.description)+'</p><p class="notice">Телефон: '+esc(a.contact_phone)+' · БИН: '+esc(a.business_id||"—")+'</p>'+(a.resume_summary?'<p>Резюме: '+esc(a.resume_summary)+'</p>':"")+(a.resume_url?'<p><a href="'+esc(a.resume_url)+'" target="_blank" rel="noopener noreferrer">Открыть резюме</a></p>':"")+(a.portfolio_url?'<p><a href="'+esc(a.portfolio_url)+'" target="_blank" rel="noopener noreferrer">Портфолио</a></p>':"")+'<label class="field-label">Комментарий</label><input class="input" id="review-'+esc(a.id)+'" maxlength="2000" placeholder="Необязательно"><div class="seg" style="margin-top:12px"><button class="btn primary" onclick="reviewSellerApplication(\''+esc(a.id)+'\',\'approved\')">Одобрить</button><button class="btn" onclick="reviewSellerApplication(\''+esc(a.id)+'\',\'rejected\')">Отклонить</button></div></article>';}).join("");
     } catch(e){root.textContent=e.message;}
   };
   window.reviewSellerApplication = async function (id, decision) {
@@ -133,7 +133,7 @@
     el.textContent="Рассчитываем…";
     try {var r=await request("/api/try-on/fit-analysis",{method:"POST",body:JSON.stringify(payload)}),f=r.fit;
       var labels={good:"Подходит",loose:"Свободно",oversized:"Оверсайз",stretching:"Растягивается в пределах материала",too_small:"Слишком мало"};
-      el.innerHTML="<h3>"+esc(labels[f.overall]||f.overall)+"</h3><p>"+esc(f.message)+"</p><div style=\\"overflow-x:auto\\"><table class=\\"seller-table\\"><thead><tr><th>Параметр</th><th>Тело</th><th>Одежда</th><th>Результат</th><th>Минимум</th></tr></thead><tbody>"+f.checks.map(function(x){return "<tr><td>"+esc(x.label)+"</td><td>"+x.bodyCm+" см</td><td>"+x.garmentCm+" см</td><td>"+esc(labels[x.status]||x.status)+"</td><td>"+(x.recommendedMinimumCm==null?"—":x.recommendedMinimumCm+" см")+"</td></tr>";}).join("")+"</tbody></table></div>";
+      el.innerHTML="<h3>"+esc(labels[f.overall]||f.overall)+"</h3><p>"+esc(f.message)+"</p><div style=\"overflow-x:auto\"><table class=\"seller-table\"><thead><tr><th>Параметр</th><th>Тело</th><th>Одежда</th><th>Результат</th><th>Минимум</th></tr></thead><tbody>"+f.checks.map(function(x){return "<tr><td>"+esc(x.label)+"</td><td>"+x.bodyCm+" см</td><td>"+x.garmentCm+" см</td><td>"+esc(labels[x.status]||x.status)+"</td><td>"+(x.recommendedMinimumCm==null?"—":x.recommendedMinimumCm+" см")+"</td></tr>";}).join("")+"</tbody></table></div>";
     }catch(e){el.textContent=e.message;}
   };
   var oldGo=go;
@@ -154,10 +154,10 @@
   var oldLogout=logout;
   window.logout = async function () { try{if(getToken())await request("/api/auth/logout",{method:"POST",body:"{}"});}catch(_){}setToken("");apiUser=null;oldLogout(); };
   var oldHow=screens.how;
-  screens.how=function(){return oldHow()+'<div class="panel" style="margin-top:14px"><h3>Проверка размерной посадки</h3><p class="notice">Серверный анализ мерок и растяжимости ткани.</p><button class="btn primary" onclick="go(\\'measure\\')">Открыть анализ посадки</button></div>';};
+  screens.how=function(){return oldHow()+'<div class="panel" style="margin-top:14px"><h3>Проверка размерной посадки</h3><p class="notice">Серверный анализ мерок и растяжимости ткани.</p><button class="btn primary" onclick="go(\'measure\')">Открыть анализ посадки</button></div>';};
   USER=null;try{localStorage.removeItem("vizo-session");}catch(_){}loadUserData();nav();
   if(getToken())request("/api/auth/me").then(function(r){setUser(r.user,function(){go("catalog");});}).catch(function(){setToken("");apiUser=null;USER=null;nav();});
-  window.vizoSetApiBase=function(value){var v=String(value||"").trim().replace(/\/+$/,"");if(!/^https?:\\/\\/[^ ]+$/i.test(v))throw new Error("Укажите полный http(s) URL API.");base=v;localStorage.setItem(BASE,v);toast("API URL сохранён: "+base);return base;};
+  window.vizoSetApiBase=function(value){var v=String(value||"").trim().replace(/\/+$/,"");if(!/^https?:\/\/[^ ]+$/i.test(v))throw new Error("Укажите полный http(s) URL API.");base=v;localStorage.setItem(BASE,v);toast("API URL сохранён: "+base);return base;};
   window.vizoConfigureApi=function(){var v=prompt("URL VIZO API",base);if(v!==null){try{window.vizoSetApiBase(v);}catch(e){toast(e.message);}}};
   window.vizoApiInfo=function(){return {baseUrl:base,authenticated:!!getToken(),role:apiUser&&apiUser.role||null};};
 })();
