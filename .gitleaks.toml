@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Dev-плейсхолдеры в .env.example и тестовые значения"
+paths = [
+  '''backend/\.env\.example$''',
+  '''backend/tests/setup\.ts$''',
+]
