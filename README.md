@@ -17,7 +17,7 @@ Neither prototype is silently renamed or deleted.
 - Admin-only application queue and approve/reject endpoint. Approval creates a seller profile and grants the seller role server-side.
 - Measurement-based garment-fit estimator that checks garment/body dimensions against supplied fabric stretch limits and flags oversized or too-small fit.
 
-These are backend capabilities, not a claim that the original HTML frontend is already integrated. The existing browser-local seller registration and local 3D preview still need to be connected/replaced before these policies are enforced in the public website.
+An API-integrated preview is now available at [frontend/vizo-integrated-preview.html](frontend/vizo-integrated-preview.html). It loads the preserved prototype inside a preview frame and adds backend authentication, seller application/review screens, and a measurement-based fit-analysis screen. The original HTML source remains untouched. Run instructions are in [frontend/README.md](frontend/README.md).
 
 The fit estimator is not yet a trained AI model or a physical cloth simulator. It does not yet derive measurements from GLB meshes or render simulated cloth. See [backend/README.md](backend/README.md).
 
