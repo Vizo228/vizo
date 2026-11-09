@@ -11,7 +11,7 @@ The backend now includes the initial API foundation plus server-side seller appr
 - `GET /api/admin/seller-applications?status=pending&limit=50&offset=0` — admin-only application queue.
 - `POST /api/admin/seller-applications/:id/review` — admin-only approval or rejection. Approval creates/updates the seller profile and promotes the user to `seller` in the same SQL statement. Rejection never grants seller access.
 
-Public registration does not accept a client-selected role. Admin access must be provisioned out-of-band in the database by an authorized operator; there is no public admin-registration route.
+Public registration does not accept a client-selected role. There is no public admin-registration route. To bootstrap the first administrator, first create and verify the account through the backend registration flow, then have an authorized database operator run a one-time statement such as:\n\n```sql\nUPDATE users SET role = 'admin', updated_at = NOW() WHERE email = LOWER('verified-admin@example.com');\n```\n\nReplace the example with the verified account email; do not expose this operation through the public API.
 
 Resume files are not uploaded to this API yet. Applicants can provide a resume summary or HTTPS link. Private file uploads require a configured object-storage provider and access controls; the API does not fetch or trust remote resume links.
 
