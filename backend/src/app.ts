@@ -2,6 +2,8 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { Pool } from 'pg';
 import type { AppEnv } from './config/env.js';
 import { registerAuthRoutes, type AuthDatabase } from './routes/auth.js';
+import { registerSellerApplicationRoutes } from './routes/seller-applications.js';
+import { registerFitAnalysisRoutes } from './routes/fit-analysis.js';
 
 export interface Database extends AuthDatabase { end?: () => Promise<void>; }
 
@@ -16,6 +18,8 @@ export function buildApp(env: AppEnv, database?: Database): FastifyInstance {
     catch { return reply.code(503).send({ status: 'not_ready', checks: { database: 'unavailable' } }); }
   });
   registerAuthRoutes(app, pool);
+  registerSellerApplicationRoutes(app, pool);
+  registerFitAnalysisRoutes(app, pool);
   app.setNotFoundHandler((_request, reply) => reply.code(404).send({
     error: { code: 'NOT_FOUND', message: 'Route not found' }
   }));
