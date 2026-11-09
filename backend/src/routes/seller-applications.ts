@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { findSessionUser, type SessionDatabase } from '../lib/session.js';
 
@@ -26,7 +26,7 @@ const listSchema = z.object({
   offset: z.coerce.number().int().min(0).max(10000).default(0)
 });
 
-function bearerRequired(reply: Parameters<Parameters<FastifyInstance['get']>[1]>[1]) {
+function bearerRequired(reply: FastifyReply) {
   return reply.code(401).send({ error: { code: 'UNAUTHENTICATED', message: 'Sign in is required' } });
 }
 
