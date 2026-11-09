@@ -19,7 +19,7 @@ async function migrate(): Promise<void> {
     `);
 
     const files = (await readdir(migrationsDirectory))
-      .filter((file) => /^\\d+_[a-z0-9_-]+\\.sql$/.test(file))
+      .filter((file) => /^\d+_[a-z0-9_-]+\.sql$/.test(file))
       .sort();
 
     for (const filename of files) {
