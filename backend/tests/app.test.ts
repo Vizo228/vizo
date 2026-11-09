@@ -26,3 +26,21 @@ test('unknown routes return stable 404 envelope', async () => {
   const app = buildApp(env, db); const response = await app.inject({ method: 'GET', url: '/does-not-exist' });
   assert.equal(response.statusCode, 404); assert.equal(response.json().error.code, 'NOT_FOUND'); await app.close();
 });
+
+test('CORS preflight allows configured frontend origin and bearer headers', async () => {
+  const db: Database = { query: async () => ({ rows: [], rowCount: 0 }) };
+  const app = buildApp(env, db);
+  const response = await app.inject({
+    method: 'OPTIONS',
+    url: '/api/auth/login',
+    headers: {
+      origin: 'http://localhost:5173',
+      'access-control-request-method': 'POST',
+      'access-control-request-headers': 'authorization,content-type'
+    }
+  });
+  assert.equal(response.statusCode, 204);
+  assert.equal(response.headers['access-control-allow-origin'], 'http://localhost:5173');
+  assert.match(String(response.headers['access-control-allow-headers']), /authorization/i);
+  await app.close();
+});
