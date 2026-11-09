@@ -34,7 +34,7 @@ npm test
 npm run dev
 ```
 
-The API listens on port 3000 by default:
+The API listens on port 3000 by default. Set CORS_ORIGIN to a comma-separated list of exact frontend origins; the local defaults cover ports 5173 and 8080. For a hosted frontend, add its exact HTTPS origin to the backend environment. The frontend sends bearer tokens and does not require cookie credentials.\n\nThe API listens on port 3000 by default:
 - `GET http://localhost:3000/health`
 - `GET http://localhost:3000/ready`
 
